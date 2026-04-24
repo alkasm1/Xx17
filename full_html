@@ -1,0 +1,11 @@
+
+# Combine everything
+full_html = html_part1 + js_code
+
+output_path = '/mnt/agents/output/ALM_GeoFreq_Pro_v7.html'
+with open(output_path, 'w', encoding='utf-8') as f:
+    f.write(full_html)
+
+print(f"✅ Complete file saved: {output_path}")
+print(f"Total size: {len(full_html):,} characters")
+print(f"Approx: {len(full_html) / 1024:.1f} KB")

@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ALM Secure Image Encoder V1</title><!-- تحسين العرض على الجوال -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ملف التصميم -->
+<link rel="stylesheet" href="style.css">
+
+</head><body><main class="app">
+
+    <h1>🔐 ALM Secure Image Encoder</h1>
+
+    <!-- إدخال النص -->
+    <section class="panel">
+        <label>📥 النص:</label>
+        <textarea id="inputText" placeholder="اكتب النص هنا..."></textarea>
+    </section>
+
+    <!-- كلمة المرور -->
+    <section class="panel">
+        <label>🔑 كلمة المرور:</label>
+        <input id="password" type="password" placeholder="أدخل كلمة المرور">
+    </section>
+
+    <!-- الأزرار -->
+    <div class="row">
+        <button id="encodeBtn">تحويل إلى صورة</button>
+        <button id="decodeBtn">استخراج من الصورة</button>
+    </div>
+
+    <!-- الكانفس -->
+    <section class="panel">
+        <h2>🖼️ الصورة الناتجة</h2>
+        <canvas id="canvas"></canvas>
+    </section>
+
+    <!-- تحميل صورة -->
+    <section class="panel">
+        <label>📤 تحميل صورة لفك التشفير:</label>
+        <input type="file" id="imageInput" accept="image/png,image/jpeg">
+    </section>
+
+    <!-- النص المسترجع -->
+    <section class="panel">
+        <label>📄 النص المسترجع:</label>
+        <textarea id="outputText" readonly></textarea>
+    </section>
+
+</main>
+
+<!-- السكربت -->
+<script src="script.js"></script>
+
+</body>
+</html>

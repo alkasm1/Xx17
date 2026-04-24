@@ -1,225 +1,905 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+
+# Create the complete HTML file in one go
+html_part1 = '''<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALM V3 Grid Encoder</title><script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://unpkg.com/docx@7.7.0/build/index.js"></script><style>
-body{font-family:sans-serif;background:#111;color:#eee;margin:0}
-.container{max-width:900px;margin:auto;padding:20px}
-textarea,input,select{width:100%;margin-top:10px;padding:10px}
-button{margin-top:10px;padding:10px;background:#0BA37F;color:#fff;border:none}
-canvas{width:100%;margin-top:10px;background:#fff}
-</style></head><body>
-<div class="container"><h2>🔐 ALM V3 Grid Encoder</h2><input id="userKey" placeholder="User Key" value="123456"><input type="file" id="docInput" accept=".docx,.pdf">
-<button id="encodeBtn">تحويل إلى صورة</button><canvas id="canvas"></canvas>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALM GeoFreq Pro | أداة الترميز المتقدمة</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQUxNIEdlb0ZyZXEgUHJvIiwic2hvcnRfbmFtZSI6Ikdlb0ZyZXEiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMGExYSIsInRoZW1lX2NvbG9yIjoiIzY2NzVlZSJ9">
+    <style>
+        :root {
+            --primary: #6675ee;
+            --primary-dark: #4f5ec7;
+            --secondary: #00d4aa;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --bg: #0a0a1a;
+            --bg-card: #121228;
+            --bg-input: #1a1a3e;
+            --text: #e8e8ff;
+            --text-muted: #8892b0;
+            --border: #2a2a5a;
+            --success: #00d4aa;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 20px rgba(102,117,238,0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(102,117,238,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,212,170,0.1) 0%, transparent 50%),
+                var(--bg);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .tagline {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab:hover { color: var(--text); }
+        
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .tab-icon {
+            font-size: 1.2rem;
+            margin-left: 8px;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title .icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-input);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(102,117,238,0.05), rgba(0,212,170,0.05));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            transform: scale(1.01);
+        }
+        
+        .drop-zone:hover::before, .drop-zone.dragover::before {
+            opacity: 1;
+        }
+        
+        .drop-zone .icon-big {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+        
+        .drop-zone p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        .drop-zone .file-types {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+        
+        .file-preview {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px solid var(--border);
+        }
+        
+        .file-preview.show { display: flex; }
+        
+        .file-preview .file-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .file-preview .file-info {
+            flex: 1;
+        }
+        
+        .file-preview .file-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .file-preview .file-size {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .file-preview .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .file-preview .remove-btn:hover { transform: scale(1.1); }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102,117,238,0.2);
+        }
+        
+        .input-wrapper .toggle-password {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .password-strength {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .strength-bar.weak { background: var(--danger); }
+        .strength-bar.medium { background: var(--warning); }
+        .strength-bar.strong { background: var(--success); }
+        
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--text-muted);
+        }
+        
+        .security-levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .security-option {
+            padding: 15px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .security-option:hover { border-color: var(--primary); }
+        
+        .security-option.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(102,117,238,0.1), rgba(0,212,170,0.1));
+        }
+        
+        .security-option .level-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .security-option .level-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        
+        .security-option .level-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .anti-tamper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255,71,87,0.1), rgba(255,71,87,0.05));
+            border: 1px solid rgba(255,71,87,0.3);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .anti-tamper .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .anti-tamper .switch input {
+            opacity: 0;
+            width: 0; height: 0;
+        }
+        
+        .anti-tamper .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--border);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        
+        .anti-tamper .slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        .anti-tamper input:checked + .slider {
+            background: var(--danger);
+        }
+        
+        .anti-tamper input:checked + .slider::before {
+            transform: translateX(24px);
+        }
+        
+        .anti-tamper .info {
+            flex: 1;
+        }
+        
+        .anti-tamper .info-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--danger);
+        }
+        
+        .anti-tamper .info-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .progress-container {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .progress-container.show { display: block; }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(102,117,238,0.1));
+            border: 1px solid var(--secondary);
+            border-radius: 16px;
+            text-align: center;
+        }
+        
+        .result-container.show { display: block; }
+        
+        .result-container .success-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .result-container .result-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .result-container .result-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,117,238,0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+        
+        .image-preview-container {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .image-preview-container.show { display: block; }
+        
+        .image-preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+        
+        .analysis-report {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+        
+        .analysis-report.show { display: block; }
+        
+        .analysis-report h4 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .metric:last-child { border-bottom: none; }
+        
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .metric-value.good { color: var(--success); }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        
+        .warning-box {
+            display: none;
+            padding: 15px;
+            background: rgba(255,165,2,0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .warning-box.show { display: flex; }
+        
+        .warning-box .warning-icon {
+            font-size: 1.5rem;
+        }
+        
+        .warning-box .warning-text {
+            font-size: 0.9rem;
+            color: var(--warning);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 600px) {
+            .logo { font-size: 1.8rem; }
+            .security-levels { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="header">
+        <div class="logo">🔐 ALM GeoFreq Pro</div>
+        <div class="tagline">أداة متقدمة لإخفاء الملفات داخل الصور بتشفير عسكري الدرجة</div>
+        <span class="badge">نسخة 7.0 - محسنة بالكامل</span>
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('encode')">
+                <span class="tab-icon">🔒</span> إخفاء الملف
+            </button>
+            <button class="tab" onclick="switchTab('decode')">
+                <span class="tab-icon">🔓</span> استخراج الملف
+            </button>
+        </div>
+        
+        <div id="encode-section" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">📁</div>
+                    الخطوة 1: اختيار الملف
+                </div>
+                <div class="drop-zone" id="fileDropZone" onclick="document.getElementById('fileInput').click()">
+                    <div class="icon-big">📂</div>
+                    <p>اسحب الملف هنا أو انقر للاختيار</p>
+                    <div class="file-types">PDF, DOC, DOCX, TXT, ZIP, أي نوع</div>
+                </div>
+                <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(event)">
+                <div class="file-preview" id="filePreview">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name" id="fileName">-</div>
+                        <div class="file-size" id="fileSize">-</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile()">✕</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">🖼️</div>
+                    الخطوة 2: اختيار صورة الغلاف
+                </div>
+                <div class="drop-zone" id="imageDropZone" onclick="document.getElementById('imageInput').click()">
+                    <div class="icon-big">🖼️</div>
+                    <p>اسحب صورة PNG هنا أو انقر للاختيار</p>
+                    <div class="file-types">PNG فقط - يفضل صورة عالية الدقة</div>
+                </div>
+                <input type="file" id="imageInput" accept="image/png" style="display:none" onchange="handleImageSelect(event)">
+                <div class="file-preview" id="imagePreview">
+                    <div class="file-icon">🖼️</div>
+                    <div class="file-info">
+                        <div class="file-name" id="imageName">-</div>
+                        <div class="file-size" id="imageSize">-</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeImage()">✕</button>
+                </div>
+                <div class="image-preview-container" id="imagePreviewContainer">
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+                <div class="warning-box" id="capacityWarning">
+                    <span class="warning-icon">⚠️</span>
+                    <span class="warning-text" id="warningText">الصورة صغيرة جداً مقارنة بحجم الملف</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">🔐</div>
+                    الخطوة 3: إعدادات الأمان
+                </div>
+                
+                <div class="input-group">
+                    <label>مستوى التشفير</label>
+                    <div class="security-levels">
+                        <div class="security-option selected" onclick="selectSecurity('fast')" id="sec-fast">
+                            <div class="level-icon">⚡</div>
+                            <div class="level-name">سريع</div>
+                            <div class="level-desc">ChaCha20<br>للملفات الصغيرة</div>
+                        </div>
+                        <div class="security-option" onclick="selectSecurity('standard')" id="sec-standard">
+                            <div class="level-icon">🛡️</div>
+                            <div class="level-name">قياسي</div>
+                            <div class="level-desc">AES-256-GCM<br>موصى به</div>
+                        </div>
+                        <div class="security-option" onclick="selectSecurity('maximum')" id="sec-maximum">
+                            <div class="level-icon">🔒</div>
+                            <div class="level-name">قصوى</div>
+                            <div class="level-desc">AES-256 + Argon2<br>للأسرار الهامة</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>كلمة المرور / المفتاح السري</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="passwordInput" placeholder="أدخل كلمة مرور قوية..." oninput="checkPasswordStrength()">
+                        <button class="toggle-password" onclick="togglePassword()">👁️</button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">أدخل كلمة مرور</div>
+                </div>
+                
+                <div class="anti-tamper">
+                    <label class="switch">
+                        <input type="checkbox" id="antiTamperCheck">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="info">
+                        <div class="info-title">🛡️ الحماية المضادة للقرصنة</div>
+                        <div class="info-desc">إذا فشل فك التشفير 3 مرات، البيانات تتلف ذاتياً نهائياً</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="text-align: center;">
+                <button class="btn btn-primary" id="encodeBtn" onclick="startEncoding()" disabled>
+                    <span>🔒</span> بدء الإخفاء الآمن
+                </button>
+                
+                <div class="progress-container" id="encodeProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="encodeProgressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="encodeProgressText">جاري التحضير...</div>
+                </div>
+                
+                <div class="result-container" id="encodeResult">
+                    <div class="success-icon">✅</div>
+                    <div class="result-title">تم الإخفاء بنجاح!</div>
+                    <div class="result-info" id="encodeResultInfo">-</div>
+                    <button class="btn btn-primary" onclick="downloadEncodedImage()">
+                        <span>💾</span> تحميل الصورة المخفية
+                    </button>
+                </div>
+                
+                <div class="analysis-report" id="analysisReport">
+                    <h4>📊 تقرير تحليل الأمان</h4>
+                    <div class="metric">
+                        <span class="metric-label">درجة التمويه</span>
+                        <span class="metric-value good" id="metricCamouflage">95%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">قوة التشفير</span>
+                        <span class="metric-value good" id="metricEncryption">AES-256-GCM</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">مقاومة التحليل الإحصائي</span>
+                        <span class="metric-value good" id="metricResistance">عالية</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">نسبة البيانات المخفية</span>
+                        <span class="metric-value" id="metricRatio">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="decode-section" class="tab-content" style="display:none">
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">🖼️</div>
+                    اختيار الصورة المخفية
+                </div>
+                <div class="drop-zone" id="decodeImageDropZone" onclick="document.getElementById('decodeImageInput').click()">
+                    <div class="icon-big">🖼️</div>
+                    <p>اسحب صورة PNG المخفية هنا</p>
+                    <div class="file-types">PNG فقط</div>
+                </div>
+                <input type="file" id="decodeImageInput" accept="image/png" style="display:none" onchange="handleDecodeImageSelect(event)">
+                <div class="file-preview" id="decodeImagePreview">
+                    <div class="file-icon">🖼️</div>
+                    <div class="file-info">
+                        <div class="file-name" id="decodeImageName">-</div>
+                        <div class="file-size" id="decodeImageSize">-</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeDecodeImage()">✕</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">🔐</div>
+                    إدخال كلمة المرور
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور / المفتاح السري</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="decodePasswordInput" placeholder="أدخل كلمة المرور المستخدمة للإخفاء...">
+                        <button class="toggle-password" onclick="toggleDecodePassword()">👁️</button>
+                    </div>
+                </div>
+                <div class="input-group" id="attemptCounter" style="display:none">
+                    <label>عدد المحاولات المتبقية</label>
+                    <div style="display:flex; gap:5px; margin-top:8px">
+                        <div style="flex:1; height:8px; background:var(--danger); border-radius:4px;" id="attempt1"></div>
+                        <div style="flex:1; height:8px; background:var(--danger); border-radius:4px;" id="attempt2"></div>
+                        <div style="flex:1; height:8px; background:var(--danger); border-radius:4px;" id="attempt3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="text-align: center;">
+                <button class="btn btn-primary" id="decodeBtn" onclick="startDecoding()" disabled>
+                    <span>🔓</span> استخراج الملف
+                </button>
+                
+                <div class="progress-container" id="decodeProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="decodeProgressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="decodeProgressText">جاري فك التشفير...</div>
+                </div>
+                
+                <div class="result-container" id="decodeResult">
+                    <div class="success-icon">✅</div>
+                    <div class="result-title">تم الاستخراج بنجاح!</div>
+                    <div class="result-info" id="decodeResultInfo">-</div>
+                    <button class="btn btn-primary" onclick="downloadDecodedFile()">
+                        <span>💾</span> تحميل الملف
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>🔐 ALM GeoFreq Pro v7.0 | تشفير متقدم - إخفاء ذكي - حماية قصوى</p>
+        <p style="margin-top:8px">جميع العمليات تتم محلياً في متصفحك - لا يتم رفع أي بيانات للخادم</p>
+    </div>
+'''
 
-<input type="file" id="imageInput">
-<button id="decodeBtn">فك التشفير</button><select id="exportMode">
-<option value="word">Word</option>
-<option value="pdf">PDF</option>
-</select><button id="exportBtn">تنزيل</button>
-
-<textarea id="outputText"></textarea></div><script>
-
-const SIZE = 1024;
-const LMAX = 12;
-const B = 32;
-
-const indexToChar={1:"ا",2:"ب",3:"ت",4:"ث",5:"ج",6:"ح",7:"خ",8:"د",9:"ذ",10:"ر",11:"ز",12:"س",13:"ش",14:"ص",15:"ض",16:"ط",17:"ظ",18:"ع",19:"غ",20:"ف",21:"ق",22:"ك",23:"ل",24:"م",25:"ن",26:"ه",27:"و",28:"ي"};
-const charToIndex={}; for(let k in indexToChar) charToIndex[indexToChar[k]]=Number(k);
-
-function normalizeArabic(s){
-return (s||"").replace(/[إأآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
-}
-
-function cleanText(t){
-t=normalizeArabic(t);
-return t.replace(/\s+/g," ").trim();
-}
-
-function wordToCode(w){
-const c=new Array(LMAX).fill(0);
-let p=0;
-for(let i=w.length-1;i>=0;i--){
-const idx=charToIndex[w[i]];
-if(idx){c[p++]=idx;if(p>=LMAX)break;}
-}
-let C=0n;
-for(let i=0;i<LMAX;i++){
-C+=BigInt(c[i])*(BigInt(B)**BigInt(i));
-}
-return C;
-}
-
-function codeToWord(C){
-let out="";
-for(let i=0;i<LMAX;i++){
-const d=Number(C%BigInt(B));
-C/=BigInt(B);
-if(d) out=indexToChar[d]+out;
-}
-return out;
-}
-
-async function extractText(file){
-if(file.name.endsWith(".docx")){
-const buf=await file.arrayBuffer();
-const res=await mammoth.extractRawText({arrayBuffer:buf});
-return res.value;
-}
-if(file.name.endsWith(".pdf")){
-const buf=await file.arrayBuffer();
-const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-let text="";
-for(let i=1;i<=pdf.numPages;i++){
-const page=await pdf.getPage(i);
-const content=await page.getTextContent();
-text+=content.items.map(x=>x.str).join(" ")+"\n";
-}
-return text;
-}
-}
-
-function bytesToBits(bytes){
-const bits=[];
-for(const b of bytes){
-for(let i=7;i>=0;i--){
-bits.push((b>>i)&1);
-}
-}
-return bits;
-}
-
-function bitsToBytes(bits){
-const bytes=[];
-for(let i=0;i<bits.length;i+=8){
-let b=0;
-for(let j=0;j<8;j++){
-b=(b<<1)|(bits[i+j]||0);
-}
-bytes.push(b);
-}
-return new Uint8Array(bytes);
-}
-
-function drawFinder(ctx,size){
-const s=40;
-function box(x,y){
-ctx.fillStyle="#000";ctx.fillRect(x,y,s,s);
-ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,s-16,s-16);
-ctx.fillStyle="#000";ctx.fillRect(x+16,y+16,s-32,s-32);
-}
-box(0,0);box(size-s,0);box(0,size-s);
-}
-
-function drawGrid(ctx,bits,size){
-const cells=Math.ceil(Math.sqrt(bits.length));
-const cs=Math.floor(size/cells);
-ctx.fillStyle="#fff";
-ctx.fillRect(0,0,size,size);
-let i=0;
-for(let y=0;y<cells;y++){
-for(let x=0;x<cells;x++){
-ctx.fillStyle=(bits[i++]? "#000":"#fff");
-ctx.fillRect(x*cs,y*cs,cs,cs);
-}
-}
-return cells;
-}
-
-function readGrid(ctx,size,cells){
-const cs=Math.floor(size/cells);
-const img=ctx.getImageData(0,0,size,size).data;
-const bits=[];
-for(let y=0;y<cells;y++){
-for(let x=0;x<cells;x++){
-let sum=0,c=0;
-for(let dy=0;dy<cs;dy++){
-for(let dx=0;dx<cs;dx++){
-const i=((y*cs+dy)*size+(x*cs+dx))*4;
-sum+=img[i];c++;
-}
-}
-bits.push(sum/c<128?1:0);
-}
-}
-return bits;
-}
-
-let lastText="";
-
-encodeBtn.onclick=async ()=>{
-const file=docInput.files[0];
-const key=BigInt(userKey.value||0);
-let text=await extractText(file);
-text=cleanText(text);
-
-const words=text.split(" ");
-const bytes=[];
-
-for(const w of words){
-let C=wordToCode(w)^key;
-for(let j=0;j<8;j++){
-bytes.push(Number((C>>BigInt(8*j))&0xFFn));
-}
-}
-
-const bits=bytesToBits(bytes);
-
-const canvas=document.getElementById("canvas");
-canvas.width=SIZE;canvas.height=SIZE;
-const ctx=canvas.getContext("2d");
-
-const cells=drawGrid(ctx,bits,SIZE);
-drawFinder(ctx,SIZE);
-
-canvas.dataset.cells=cells;
-};
-
-decodeBtn.onclick=()=>{
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const key=BigInt(userKey.value||0);
-
-const cells=parseInt(canvas.dataset.cells)||180;
-
-const bits=readGrid(ctx,canvas.width,cells);
-const bytes=bitsToBytes(bits);
-
-let words=[];
-for(let i=0;i<bytes.length;i+=8){
-let C=0n;
-for(let j=0;j<8;j++){
-C|=BigInt(bytes[i+j]||0)<<BigInt(8*j);
-}
-words.push(codeToWord(C^key));
-}
-
-lastText=words.join(" ");
-outputText.value=lastText;
-};
-
-exportBtn.onclick=async ()=>{
-if(!lastText)return alert("لا يوجد نص");
-
-if(exportMode.value==="word"){
-const {Document,Packer,Paragraph}=docx;
-const doc=new Document({sections:[{children:[new Paragraph(lastText)]}]});
-const blob=await Packer.toBlob(doc);
-download(blob,"file.docx");
-}else{
-const {jsPDF}=jspdf;
-const pdf=new jsPDF();
-pdf.text(lastText,10,10);
-pdf.save("file.pdf");
-}
-};
-
-function download(blob,name){
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download=name;
-a.click();
-}
-
-</script></body>
-</html>
+print(f"Part 1 length: {len(html_part1)}")

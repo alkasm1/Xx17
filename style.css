@@ -1,0 +1,27 @@
+body {
+background:#111;
+color:#eee;
+font-family:sans-serif;
+}
+
+.app {
+max-width:800px;
+margin:auto;
+padding:20px;
+}
+
+textarea {
+width:100%;
+height:120px;
+margin:10px 0;
+}
+
+button {
+padding:10px;
+margin:5px;
+}
+
+canvas {
+max-width:100%;
+border:1px solid #333;
+}

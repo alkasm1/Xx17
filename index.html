@@ -1,6 +1,5 @@
 
-# Create the complete HTML file in one go
-full_html = '''<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1416,15 +1415,4 @@ full_html = '''<!DOCTYPE html>
         document.getElementById('passwordInput').addEventListener('input', checkCanEncode);
         document.getElementById('decodePasswordInput').addEventListener('input', checkCanDecode);
     </script>
-</body>
-</html>'''
-
-output_path = '/mnt/agents/output/ALM_GeoFreq_Pro_v7.html'
-with open(output_path, 'w', encoding='utf-8') as f:
-    f.write(full_html)
-
-import os
-size = os.path.getsize(output_path)
-print(f"✅ File created successfully!")
-print(f"Path: {output_path}")
-print(f"Size: {size:,} bytes ({size/1024:.1f} KB)")
+</body

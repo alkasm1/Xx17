@@ -1,56 +1,225 @@
 <!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>ALM Secure Image Encoder V1</title><!-- تحسين العرض على الجوال -->
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALM V3 Grid Encoder</title><script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://unpkg.com/docx@7.7.0/build/index.js"></script><style>
+body{font-family:sans-serif;background:#111;color:#eee;margin:0}
+.container{max-width:900px;margin:auto;padding:20px}
+textarea,input,select{width:100%;margin-top:10px;padding:10px}
+button{margin-top:10px;padding:10px;background:#0BA37F;color:#fff;border:none}
+canvas{width:100%;margin-top:10px;background:#fff}
+</style></head><body>
+<div class="container"><h2>🔐 ALM V3 Grid Encoder</h2><input id="userKey" placeholder="User Key" value="123456"><input type="file" id="docInput" accept=".docx,.pdf">
+<button id="encodeBtn">تحويل إلى صورة</button><canvas id="canvas"></canvas>
 
-<!-- ملف التصميم -->
-<link rel="stylesheet" href="style.css">
+<input type="file" id="imageInput">
+<button id="decodeBtn">فك التشفير</button><select id="exportMode">
+<option value="word">Word</option>
+<option value="pdf">PDF</option>
+</select><button id="exportBtn">تنزيل</button>
 
-</head><body><main class="app">
+<textarea id="outputText"></textarea></div><script>
 
-    <h1>🔐 ALM Secure Image Encoder</h1>
+const SIZE = 1024;
+const LMAX = 12;
+const B = 32;
 
-    <!-- إدخال النص -->
-    <section class="panel">
-        <label>📥 النص:</label>
-        <textarea id="inputText" placeholder="اكتب النص هنا..."></textarea>
-    </section>
+const indexToChar={1:"ا",2:"ب",3:"ت",4:"ث",5:"ج",6:"ح",7:"خ",8:"د",9:"ذ",10:"ر",11:"ز",12:"س",13:"ش",14:"ص",15:"ض",16:"ط",17:"ظ",18:"ع",19:"غ",20:"ف",21:"ق",22:"ك",23:"ل",24:"م",25:"ن",26:"ه",27:"و",28:"ي"};
+const charToIndex={}; for(let k in indexToChar) charToIndex[indexToChar[k]]=Number(k);
 
-    <!-- كلمة المرور -->
-    <section class="panel">
-        <label>🔑 كلمة المرور:</label>
-        <input id="password" type="password" placeholder="أدخل كلمة المرور">
-    </section>
+function normalizeArabic(s){
+return (s||"").replace(/[إأآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
+}
 
-    <!-- الأزرار -->
-    <div class="row">
-        <button id="encodeBtn">تحويل إلى صورة</button>
-        <button id="decodeBtn">استخراج من الصورة</button>
-    </div>
+function cleanText(t){
+t=normalizeArabic(t);
+return t.replace(/\s+/g," ").trim();
+}
 
-    <!-- الكانفس -->
-    <section class="panel">
-        <h2>🖼️ الصورة الناتجة</h2>
-        <canvas id="canvas"></canvas>
-    </section>
+function wordToCode(w){
+const c=new Array(LMAX).fill(0);
+let p=0;
+for(let i=w.length-1;i>=0;i--){
+const idx=charToIndex[w[i]];
+if(idx){c[p++]=idx;if(p>=LMAX)break;}
+}
+let C=0n;
+for(let i=0;i<LMAX;i++){
+C+=BigInt(c[i])*(BigInt(B)**BigInt(i));
+}
+return C;
+}
 
-    <!-- تحميل صورة -->
-    <section class="panel">
-        <label>📤 تحميل صورة لفك التشفير:</label>
-        <input type="file" id="imageInput" accept="image/png,image/jpeg">
-    </section>
+function codeToWord(C){
+let out="";
+for(let i=0;i<LMAX;i++){
+const d=Number(C%BigInt(B));
+C/=BigInt(B);
+if(d) out=indexToChar[d]+out;
+}
+return out;
+}
 
-    <!-- النص المسترجع -->
-    <section class="panel">
-        <label>📄 النص المسترجع:</label>
-        <textarea id="outputText" readonly></textarea>
-    </section>
+async function extractText(file){
+if(file.name.endsWith(".docx")){
+const buf=await file.arrayBuffer();
+const res=await mammoth.extractRawText({arrayBuffer:buf});
+return res.value;
+}
+if(file.name.endsWith(".pdf")){
+const buf=await file.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+let text="";
+for(let i=1;i<=pdf.numPages;i++){
+const page=await pdf.getPage(i);
+const content=await page.getTextContent();
+text+=content.items.map(x=>x.str).join(" ")+"\n";
+}
+return text;
+}
+}
 
-</main>
+function bytesToBits(bytes){
+const bits=[];
+for(const b of bytes){
+for(let i=7;i>=0;i--){
+bits.push((b>>i)&1);
+}
+}
+return bits;
+}
 
-<!-- السكربت -->
-<script src="script.js"></script>
+function bitsToBytes(bits){
+const bytes=[];
+for(let i=0;i<bits.length;i+=8){
+let b=0;
+for(let j=0;j<8;j++){
+b=(b<<1)|(bits[i+j]||0);
+}
+bytes.push(b);
+}
+return new Uint8Array(bytes);
+}
 
-</body>
+function drawFinder(ctx,size){
+const s=40;
+function box(x,y){
+ctx.fillStyle="#000";ctx.fillRect(x,y,s,s);
+ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,s-16,s-16);
+ctx.fillStyle="#000";ctx.fillRect(x+16,y+16,s-32,s-32);
+}
+box(0,0);box(size-s,0);box(0,size-s);
+}
+
+function drawGrid(ctx,bits,size){
+const cells=Math.ceil(Math.sqrt(bits.length));
+const cs=Math.floor(size/cells);
+ctx.fillStyle="#fff";
+ctx.fillRect(0,0,size,size);
+let i=0;
+for(let y=0;y<cells;y++){
+for(let x=0;x<cells;x++){
+ctx.fillStyle=(bits[i++]? "#000":"#fff");
+ctx.fillRect(x*cs,y*cs,cs,cs);
+}
+}
+return cells;
+}
+
+function readGrid(ctx,size,cells){
+const cs=Math.floor(size/cells);
+const img=ctx.getImageData(0,0,size,size).data;
+const bits=[];
+for(let y=0;y<cells;y++){
+for(let x=0;x<cells;x++){
+let sum=0,c=0;
+for(let dy=0;dy<cs;dy++){
+for(let dx=0;dx<cs;dx++){
+const i=((y*cs+dy)*size+(x*cs+dx))*4;
+sum+=img[i];c++;
+}
+}
+bits.push(sum/c<128?1:0);
+}
+}
+return bits;
+}
+
+let lastText="";
+
+encodeBtn.onclick=async ()=>{
+const file=docInput.files[0];
+const key=BigInt(userKey.value||0);
+let text=await extractText(file);
+text=cleanText(text);
+
+const words=text.split(" ");
+const bytes=[];
+
+for(const w of words){
+let C=wordToCode(w)^key;
+for(let j=0;j<8;j++){
+bytes.push(Number((C>>BigInt(8*j))&0xFFn));
+}
+}
+
+const bits=bytesToBits(bytes);
+
+const canvas=document.getElementById("canvas");
+canvas.width=SIZE;canvas.height=SIZE;
+const ctx=canvas.getContext("2d");
+
+const cells=drawGrid(ctx,bits,SIZE);
+drawFinder(ctx,SIZE);
+
+canvas.dataset.cells=cells;
+};
+
+decodeBtn.onclick=()=>{
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const key=BigInt(userKey.value||0);
+
+const cells=parseInt(canvas.dataset.cells)||180;
+
+const bits=readGrid(ctx,canvas.width,cells);
+const bytes=bitsToBytes(bits);
+
+let words=[];
+for(let i=0;i<bytes.length;i+=8){
+let C=0n;
+for(let j=0;j<8;j++){
+C|=BigInt(bytes[i+j]||0)<<BigInt(8*j);
+}
+words.push(codeToWord(C^key));
+}
+
+lastText=words.join(" ");
+outputText.value=lastText;
+};
+
+exportBtn.onclick=async ()=>{
+if(!lastText)return alert("لا يوجد نص");
+
+if(exportMode.value==="word"){
+const {Document,Packer,Paragraph}=docx;
+const doc=new Document({sections:[{children:[new Paragraph(lastText)]}]});
+const blob=await Packer.toBlob(doc);
+download(blob,"file.docx");
+}else{
+const {jsPDF}=jspdf;
+const pdf=new jsPDF();
+pdf.text(lastText,10,10);
+pdf.save("file.pdf");
+}
+};
+
+function download(blob,name){
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download=name;
+a.click();
+}
+
+</script></body>
 </html>
